@@ -1,0 +1,42 @@
+﻿@page "/geolocation"
+@inherits GeolocationBase
+
+<h1>Geolocation</h1>
+
+<div class="my-3">
+    <h3>Current Position</h3>
+    <p class="my-0"><span class="font-weight-bold">Position </span> 
+        @if(CurrentPositionResult?.Position is null)
+        {
+            <span>[unknown]</span>
+        }
+        else
+        {
+        <span>Lat: @CurrentLatitude °, Long: @CurrentLongitude °</span>
+        }
+    </p>
+    <button class="btn btn-primary my-3" @onclick="ShowCurrentPosition">Current Location</button>
+    @if (CurrentPositionResult?.Error != null)
+    {
+        <p class="bg-light text-danger">Error: @CurrentPositionResult.Error.Message</p>
+    }
+    <LeafletMap Map="PositionMap" TileLayer="OpenStreetMapsTileLayer" />
+</div>
+
+<div class="my-3">
+    <h3>Watch Position</h3>
+    <p class="my-0">
+        <span class="font-weight-bold">Last Position </span>
+        @if (LastWatchPositionResult?.Position is null)
+        {
+            <span>[unknown]</span>
+        }
+        else
+        {
+            <span>Lat: @LastWatchLatitude °, Long: @LastWatchLongitude ° at @LastWatchTimestamp</span>
+        }
+    </p>
+    <button class="btn btn-primary my-3" @onclick="TogglePositionWatch">@ToggleWatchCommand</button>
+    Watch handler id: @WatchHandlerId
+    <LeafletMap Map="WatchMap" TileLayer="OpenStreetMapsTileLayer" />
+</div>

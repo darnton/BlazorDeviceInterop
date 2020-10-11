@@ -1,0 +1,124 @@
+﻿using BlazorDeviceInterop.Components.LeafletMap;
+using BlazorDeviceInterop.Geolocation;
+using BlazorDeviceTestRig.Geolocation;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace BlazorDeviceTestRig.Pages
+{
+    public class GeolocationBase : ComponentBase
+    {
+        [Inject] public IJSRuntime JSRuntime { get; set; }
+        [Inject] public IGeolocationService GeolocationService { get; set; }
+
+        protected Map PositionMap;
+        protected TileLayer OpenStreetMapsTileLayer;
+        protected Marker CurrentPositionMarker;
+
+        protected Map WatchMap;
+        protected Polyline WatchPath;
+        protected List<Marker> WatchMarkers;
+
+        protected GeolocationResult CurrentPositionResult { get; set; }
+        protected string CurrentLatitude => CurrentPositionResult?.Position?.Coords?.Latitude.ToString("F2");
+        protected string CurrentLongitude => CurrentPositionResult?.Position?.Coords?.Longitude.ToString("F2");
+        protected bool ShowCurrentPositionError => CurrentPositionResult?.Error != null;
+
+        private bool isWatching => WatchHandlerId.HasValue;
+        protected long? WatchHandlerId { get; set; }
+        protected GeolocationResult LastWatchPositionResult { get; set; }
+        protected string LastWatchLatitude => LastWatchPositionResult?.Position?.Coords?.Latitude.ToString("F2");
+        protected string LastWatchLongitude => LastWatchPositionResult?.Position?.Coords?.Longitude.ToString("F2");
+        protected string LastWatchTimestamp => LastWatchPositionResult?.Position?.DateTime.ToString();
+        protected string ToggleWatchCommand => isWatching ? "Stop watching" : "Start watching";
+
+        public GeolocationBase() : base()
+        {
+            PositionMap = new Map("geolocationPointMap", new MapOptions //Centred on New Zealand
+            {
+                Center = new LatLng(-42, 175),
+                Zoom = 4
+            });
+            WatchMap = new Map("geolocationWatchMap", new MapOptions //Centred on New Zealand
+            {
+                Center = new LatLng(-42, 175),
+                Zoom = 4
+            });
+            OpenStreetMapsTileLayer = new TileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                new TileLayerOptions
+                {
+                    Attribution = @"Map data &copy; <a href=""https://www.openstreetmap.org/"">OpenStreetMap</a> contributors, <a href=""https://creativecommons.org/licenses/by-sa/2.0/"">CC-BY-SA</a>"
+                }
+            );
+        }
+
+        public async void ShowCurrentPosition()
+        {
+            if (CurrentPositionMarker != null)
+            {
+                await CurrentPositionMarker.Remove();
+            }
+            CurrentPositionResult = await GeolocationService.GetCurrentPosition();
+            if (CurrentPositionResult.IsSuccess)
+            {
+                CurrentPositionMarker = new Marker(
+                        CurrentPositionResult.Position.ToLeafletLatLng(), null
+                    );
+                await CurrentPositionMarker.BindToJsRuntime(JSRuntime);
+                await CurrentPositionMarker.AddTo(PositionMap);
+            }
+            StateHasChanged();
+        }
+
+        public async void TogglePositionWatch()
+        {
+            if (isWatching)
+            {
+                GeolocationService.WatchPositionReceived -= HandleWatchPositionReceived;
+                await GeolocationService.ClearWatch(WatchHandlerId.Value);
+                WatchHandlerId = null;
+                foreach (var marker in WatchMarkers)
+                {
+                    await marker.Remove();
+                }
+                WatchMarkers.Clear();
+                await WatchPath.Remove();
+                WatchPath = null;
+            }
+            else
+            {
+                GeolocationService.WatchPositionReceived += HandleWatchPositionReceived;
+                WatchHandlerId = await GeolocationService.WatchPosition();
+            }
+            StateHasChanged();
+        }
+
+        private async void HandleWatchPositionReceived(object sender, GeolocationEventArgs e)
+        {
+            LastWatchPositionResult = e.GeolocationResult;
+            if (LastWatchPositionResult.IsSuccess)
+            {
+                var latlng = LastWatchPositionResult.Position.ToLeafletLatLng();
+                var marker = new Marker(latlng, null);
+                if (WatchPath is null)
+                {
+                    WatchMarkers = new List<Marker> { marker };
+                    WatchPath = new Polyline(WatchMarkers.Select(m => m.LatLng), new PolylineOptions());
+                    await WatchPath.BindToJsRuntime(JSRuntime);
+                    await WatchPath.AddTo(WatchMap);
+                }
+                else
+                {
+                    WatchMarkers.Add(marker);
+                    await WatchPath.AddLatLng(latlng);
+                }
+                await marker.BindToJsRuntime(JSRuntime);
+                await marker.AddTo(WatchMap);
+            }
+            StateHasChanged();
+        }
+    }
+}
