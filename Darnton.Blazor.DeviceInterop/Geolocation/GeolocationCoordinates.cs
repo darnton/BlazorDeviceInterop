@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace BlazorDeviceInterop.Geolocation
+namespace Darnton.Blazor.DeviceInterop.Geolocation
 {
-    [Serializable]
     /// <summary>
-    /// Geolocation Coordinates, based on https://developer.mozilla.org/en-US/docs/Web/API/GeolocationCoordinates.
+    /// Geolocation Coordinates, based on <see href="https://developer.mozilla.org/en-US/docs/Web/API/GeolocationCoordinates"/>.
     /// </summary>
     public class GeolocationCoordinates
     {

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Darnton.Units;
+using System;
 using System.Text.Json.Serialization;
 
-namespace BlazorDeviceInterop.Geolocation
+namespace Darnton.Blazor.DeviceInterop.Geolocation
 {
-    [Serializable]
     /// <summary>
-    /// Geolocation Position, based on https://developer.mozilla.org/en-US/docs/Web/API/GeolocationPosition.
+    /// Geolocation Position, based on <see href="https://developer.mozilla.org/en-US/docs/Web/API/GeolocationPosition"/>.
     /// </summary>
     public class GeolocationPosition
     {
@@ -19,9 +19,10 @@ namespace BlazorDeviceInterop.Geolocation
         /// </summary>
         public long Timestamp { get; set; }
 
-        private const long UnixEpochTicks = 621355968000000000;
-        private const long TicksPerMillisecond = 10000;
+        /// <summary>
+        /// The <see cref="DateTimeOffset"/> derived from the Timestamp, in UTC.
+        /// </summary>
         [JsonIgnore]
-        public DateTime DateTime => new DateTime(Timestamp * TicksPerMillisecond + UnixEpochTicks);
+        public DateTimeOffset DateTimeOffset => (Timestamp / 1000).FromUnixTime().ToDateTimeOffset();
     }
 }

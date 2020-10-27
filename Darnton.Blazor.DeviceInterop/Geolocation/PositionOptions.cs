@@ -1,4 +1,4 @@
-﻿namespace BlazorDeviceInterop.Geolocation
+﻿namespace Darnton.Blazor.DeviceInterop.Geolocation
 {
     /// <summary>
     /// Option properties to be passed to Geolocation functions, based on https://developer.mozilla.org/en-US/docs/Web/API/PositionOptions.

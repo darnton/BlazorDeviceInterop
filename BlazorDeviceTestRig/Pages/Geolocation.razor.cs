@@ -1,14 +1,16 @@
-﻿using BlazorDeviceInterop.Components.LeafletMap;
-using BlazorDeviceInterop.Geolocation;
+﻿using Darnton.Blazor.Leaflet.LeafletMap;
+using Darnton.Blazor.DeviceInterop.Geolocation;
 using BlazorDeviceTestRig.Geolocation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BlazorDeviceTestRig.Pages
 {
-    public class GeolocationBase : ComponentBase
+    public class GeolocationBase : ComponentBase, IDisposable
     {
         [Inject] public IJSRuntime JSRuntime { get; set; }
         [Inject] public IGeolocationService GeolocationService { get; set; }
@@ -31,7 +33,7 @@ namespace BlazorDeviceTestRig.Pages
         protected GeolocationResult LastWatchPositionResult { get; set; }
         protected string LastWatchLatitude => LastWatchPositionResult?.Position?.Coords?.Latitude.ToString("F2");
         protected string LastWatchLongitude => LastWatchPositionResult?.Position?.Coords?.Longitude.ToString("F2");
-        protected string LastWatchTimestamp => LastWatchPositionResult?.Position?.DateTime.ToString();
+        protected string LastWatchTimestamp => LastWatchPositionResult?.Position?.DateTimeOffset.ToString();
         protected string ToggleWatchCommand => isWatching ? "Stop watching" : "Start watching";
 
         public GeolocationBase() : base()
@@ -77,8 +79,7 @@ namespace BlazorDeviceTestRig.Pages
         {
             if (isWatching)
             {
-                GeolocationService.WatchPositionReceived -= HandleWatchPositionReceived;
-                await GeolocationService.ClearWatch(WatchHandlerId.Value);
+                await StopWatching();
                 WatchHandlerId = null;
                 foreach (var marker in WatchMarkers)
                 {
@@ -94,6 +95,12 @@ namespace BlazorDeviceTestRig.Pages
                 WatchHandlerId = await GeolocationService.WatchPosition();
             }
             StateHasChanged();
+        }
+
+        private async Task StopWatching()
+        {
+            GeolocationService.WatchPositionReceived -= HandleWatchPositionReceived;
+            await GeolocationService.ClearWatch(WatchHandlerId.Value);
         }
 
         private async void HandleWatchPositionReceived(object sender, GeolocationEventArgs e)
@@ -119,6 +126,14 @@ namespace BlazorDeviceTestRig.Pages
                 await marker.AddTo(WatchMap);
             }
             StateHasChanged();
+        }
+
+        public async void Dispose()
+        {
+            if (isWatching)
+            {
+                await StopWatching();
+            }
         }
     }
 }

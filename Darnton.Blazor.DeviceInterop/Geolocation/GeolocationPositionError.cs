@@ -1,15 +1,14 @@
 ﻿using System;
 
-namespace BlazorDeviceInterop.Geolocation
+namespace Darnton.Blazor.DeviceInterop.Geolocation
 {
-    [Serializable]
     /// <summary>
-    /// The reason for a Geolocation error, based on https://developer.mozilla.org/en-US/docs/Web/API/GeolocationPositionError.
+    /// The reason for a Geolocation error, based on <see href="https://developer.mozilla.org/en-US/docs/Web/API/GeolocationPositionError"/>.
     /// </summary>
     public class GeolocationPositionError
     {
         /// <summary>
-        /// The code for the error
+        /// The <see cref="GeolocationPositionErrorCode"/> for the error.
         /// </summary>
         public GeolocationPositionErrorCode Code { get; set; }
 

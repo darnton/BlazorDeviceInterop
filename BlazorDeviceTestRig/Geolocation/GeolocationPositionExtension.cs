@@ -1,5 +1,5 @@
-﻿using BlazorDeviceInterop.Components.LeafletMap;
-using BlazorDeviceInterop.Geolocation;
+﻿using Darnton.Blazor.Leaflet.LeafletMap;
+using Darnton.Blazor.DeviceInterop.Geolocation;
 
 namespace BlazorDeviceTestRig.Geolocation
 {
