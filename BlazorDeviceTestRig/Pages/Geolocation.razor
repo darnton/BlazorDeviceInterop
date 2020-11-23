@@ -20,7 +20,7 @@
     {
         <p class="bg-light text-danger">Error: @CurrentPositionResult.Error.Message</p>
     }
-    <LeafletMap Map="PositionMap" TileLayer="OpenStreetMapsTileLayer" />
+    <LeafletMap Map="PositionMap" TileLayer="PositionTileLayer" />
 </div>
 
 <div class="my-3">
@@ -38,5 +38,5 @@
     </p>
     <button class="btn btn-primary my-3" @onclick="TogglePositionWatch">@ToggleWatchCommand</button>
     Watch handler id: @WatchHandlerId
-    <LeafletMap Map="WatchMap" TileLayer="OpenStreetMapsTileLayer" />
+    <LeafletMap Map="WatchMap" TileLayer="WatchTileLayer" />
 </div>
