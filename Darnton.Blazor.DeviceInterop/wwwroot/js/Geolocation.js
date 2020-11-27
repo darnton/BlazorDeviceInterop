@@ -58,7 +58,7 @@
     mapErrorToResult: function (error, result) {
         result.error = {
             code: error.code,
-            message: code.message
+            message: error.message
         }
     }
 
