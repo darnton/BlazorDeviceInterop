@@ -1,4 +1,4 @@
-﻿window.Geolocation = {
+﻿export let Geolocation = {
 
     getCurrentPosition: async function (options) {
         var result = { position: null, error: null };
@@ -58,7 +58,7 @@
     mapErrorToResult: function (error, result) {
         result.error = {
             code: error.code,
-            message: code.message
+            message: error.message
         }
     }
 
