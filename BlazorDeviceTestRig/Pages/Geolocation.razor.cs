@@ -2,7 +2,6 @@
 using Darnton.Blazor.DeviceInterop.Geolocation;
 using BlazorDeviceTestRig.Geolocation;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +11,14 @@ namespace BlazorDeviceTestRig.Pages
 {
     public class GeolocationBase : ComponentBase, IDisposable
     {
-        [Inject] public IJSRuntime JSRuntime { get; set; }
         [Inject] public IGeolocationService GeolocationService { get; set; }
 
         protected Map PositionMap;
-        protected TileLayer OpenStreetMapsTileLayer;
+        protected TileLayer PositionTileLayer;
         protected Marker CurrentPositionMarker;
 
         protected Map WatchMap;
+        protected TileLayer WatchTileLayer;
         protected Polyline WatchPath;
         protected List<Marker> WatchMarkers;
 
@@ -43,12 +42,20 @@ namespace BlazorDeviceTestRig.Pages
                 Center = new LatLng(-42, 175),
                 Zoom = 4
             });
+            PositionTileLayer = new TileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                new TileLayerOptions
+                {
+                    Attribution = @"Map data &copy; <a href=""https://www.openstreetmap.org/"">OpenStreetMap</a> contributors, " +
+                        @"<a href=""https://creativecommons.org/licenses/by-sa/2.0/"">CC-BY-SA</a>"
+                }
+            );
             WatchMap = new Map("geolocationWatchMap", new MapOptions //Centred on New Zealand
             {
                 Center = new LatLng(-42, 175),
                 Zoom = 4
             });
-            OpenStreetMapsTileLayer = new TileLayer(
+            WatchTileLayer = new TileLayer(
                 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 new TileLayerOptions
                 {
@@ -70,7 +77,6 @@ namespace BlazorDeviceTestRig.Pages
                 CurrentPositionMarker = new Marker(
                         CurrentPositionResult.Position.ToLeafletLatLng(), null
                     );
-                await CurrentPositionMarker.BindToJsRuntime(JSRuntime);
                 await CurrentPositionMarker.AddTo(PositionMap);
             }
             StateHasChanged();
@@ -115,7 +121,6 @@ namespace BlazorDeviceTestRig.Pages
                 {
                     WatchMarkers = new List<Marker> { marker };
                     WatchPath = new Polyline(WatchMarkers.Select(m => m.LatLng), new PolylineOptions());
-                    await WatchPath.BindToJsRuntime(JSRuntime);
                     await WatchPath.AddTo(WatchMap);
                 }
                 else
@@ -123,7 +128,6 @@ namespace BlazorDeviceTestRig.Pages
                     WatchMarkers.Add(marker);
                     await WatchPath.AddLatLng(latlng);
                 }
-                await marker.BindToJsRuntime(JSRuntime);
                 await marker.AddTo(WatchMap);
             }
             StateHasChanged();

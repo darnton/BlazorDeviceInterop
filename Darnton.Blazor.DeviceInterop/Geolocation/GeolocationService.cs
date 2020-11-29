@@ -10,7 +10,7 @@ namespace Darnton.Blazor.DeviceInterop.Geolocation
     /// </summary>
     public class GeolocationService : IGeolocationService
     {
-        private readonly IJSRuntime _jsRuntime;
+        private readonly JSBinder _jsBinder;
 
         /// <inheritdoc/>
         public event EventHandler<GeolocationEventArgs> WatchPositionReceived;
@@ -21,20 +21,22 @@ namespace Darnton.Blazor.DeviceInterop.Geolocation
         /// <param name="JSRuntime"></param>
         public GeolocationService(IJSRuntime JSRuntime)
         {
-            _jsRuntime = JSRuntime;
+            _jsBinder = new JSBinder(JSRuntime, "./_content/Darnton.Blazor.DeviceInterop/js/geolocation.js");
         }
 
         /// <inheritdoc/>
         public async Task<GeolocationResult> GetCurrentPosition(PositionOptions options = null)
         {
-            return await _jsRuntime.InvokeAsync<GeolocationResult>("Geolocation.getCurrentPosition", options);
+            var module = await _jsBinder.GetModule();
+            return await module.InvokeAsync<GeolocationResult>("Geolocation.getCurrentPosition", options);
         }
 
         /// <inheritdoc/>
         public async Task<long?> WatchPosition(PositionOptions options = null)
         {
+            var module = await _jsBinder.GetModule();
             var callbackObj = DotNetObjectReference.Create(this);
-            return await _jsRuntime.InvokeAsync<int>("Geolocation.watchPosition",
+            return await module.InvokeAsync<int>("Geolocation.watchPosition",
                 callbackObj, nameof(SetWatchPosition), options);
         }
 
@@ -55,7 +57,8 @@ namespace Darnton.Blazor.DeviceInterop.Geolocation
         /// <inheritdoc/>
         public async Task ClearWatch(long watchId)
         {
-            await _jsRuntime.InvokeVoidAsync("Geolocation.clearWatch", watchId);
+            var module = await _jsBinder.GetModule();
+            await module.InvokeVoidAsync("Geolocation.clearWatch", watchId);
         }
     }
 }

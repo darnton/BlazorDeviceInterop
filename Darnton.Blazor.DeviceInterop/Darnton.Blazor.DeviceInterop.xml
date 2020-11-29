@@ -227,5 +227,8 @@
             Set to 0 to skip the cache and attempt a fresh result every time. Defaults to 0.
             </summary>
         </member>
+        <member name="M:Darnton.Blazor.DeviceInterop.JSBinder.DisposeAsync">
+            <inheritdoc/>
+        </member>
     </members>
 </doc>
