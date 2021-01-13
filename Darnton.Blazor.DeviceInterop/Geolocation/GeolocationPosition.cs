@@ -1,5 +1,4 @@
-﻿using Darnton.Units;
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
 
 namespace Darnton.Blazor.DeviceInterop.Geolocation
@@ -20,9 +19,9 @@ namespace Darnton.Blazor.DeviceInterop.Geolocation
         public long Timestamp { get; set; }
 
         /// <summary>
-        /// The <see cref="DateTimeOffset"/> derived from the Timestamp, in UTC.
+        /// The <see cref="DateTimeOffset"/> derived from the <see cref="Timestamp"/>, in UTC.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset DateTimeOffset => (Timestamp / 1000).FromUnixTime().ToDateTimeOffset();
+        public DateTimeOffset DateTimeOffset => DateTimeOffset.FromUnixTimeMilliseconds(Timestamp);
     }
 }
