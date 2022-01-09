@@ -32,7 +32,7 @@ Example code:
         Console.WriteLine($"Current device location is latitude {lat}, longitude {lng}, altitude {alt}.");
 ```
 
-See also:
+## See Also
 
 - Example code in BlazorDeviceTestRig folder of this github project
 - [Geolocation in Blazor](https://darnton.co.nz/2020/11/29/geolocation-in-blazor/)
