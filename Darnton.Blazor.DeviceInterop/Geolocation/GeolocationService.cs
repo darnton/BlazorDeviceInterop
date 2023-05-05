@@ -1,6 +1,7 @@
 ﻿using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace Darnton.Blazor.DeviceInterop.Geolocation
 {
@@ -14,14 +15,16 @@ namespace Darnton.Blazor.DeviceInterop.Geolocation
 
         /// <inheritdoc/>
         public event EventHandler<GeolocationEventArgs> WatchPositionReceived;
+        private readonly IConfiguration configuration;
 
         /// <summary>
         /// Constructs a <see cref="GeolocationService"/> object.
         /// </summary>
         /// <param name="JSRuntime"></param>
-        public GeolocationService(IJSRuntime JSRuntime)
+        public GeolocationService(IJSRuntime JSRuntime, IConfiguration configuration)
         {
-            _jsBinder = new JSBinder(JSRuntime, "./_content/Darnton.Blazor.DeviceInterop/js/Geolocation.js");
+            var basePath = configuration["App:BasePath"] ?? "./";
+            _jsBinder = new JSBinder(JSRuntime, $"{basePath}/_content/Darnton.Blazor.DeviceInterop/js/Geolocation.js");
         }
 
         /// <inheritdoc/>
